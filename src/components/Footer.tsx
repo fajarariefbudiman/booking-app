@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Hotel, Mail, Ph./ui/buttonInstagram, Twitter } from "lucide-react";
+import { Building2, Mail, MapPin, Phone, Facebook, Instagram, Twitter } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -9,65 +9,65 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Hotel className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Luxe Stay</span>
+              <Building2 className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold">RukoSpace</span>
             </div>
-            <p className="text-white/70 text-sm">Premium hotel management system providing seamless booking experience for guests worldwide.</p>
+            <p className="text-white/70 text-sm">Platform manajemen ruko modern untuk pemilik dan penyewa. Kelola, sewa, dan bayar dengan mudah — online maupun offline.</p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
+            <h3 className="font-semibold mb-4">Navigasi Cepat</h3>
             <div className="space-y-2">
               <Link
                 to="/"
                 className="block text-white/70 hover:text-primary transition-colors text-sm"
               >
-                Home
+                Beranda
               </Link>
               <Link
-                to="/rooms"
+                to="/ruko"
                 className="block text-white/70 hover:text-primary transition-colors text-sm"
               >
-                Rooms
+                Daftar Ruko
               </Link>
               <Link
-                to="/about"
+                to="/tentang"
                 className="block text-white/70 hover:text-primary transition-colors text-sm"
               >
-                About
+                Tentang Kami
               </Link>
               <Link
-                to="/contact"
+                to="/kontak"
                 className="block text-white/70 hover:text-primary transition-colors text-sm"
               >
-                Contact
+                Kontak
               </Link>
             </div>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-semibold mb-4">Contact</h3>
+            <h3 className="font-semibold mb-4">Kontak Kami</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-2 text-sm text-white/70">
                 <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>123 Luxury Avenue, Hotel District, HD 12345</span>
+                <span>Jl. Bisnis Raya No. 88, Jakarta Selatan, Indonesia</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/70">
                 <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+1 (234) 567-8900</span>
+                <span>+62 812 3456 7890</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/70">
                 <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>info@luxestay.com</span>
+                <span>support@RukoSpace.com</span>
               </div>
             </div>
           </div>
 
           {/* Social Media */}
           <div>
-            <h3 className="font-semibold mb-4">Follow Us</h3>
+            <h3 className="font-semibold mb-4">Ikuti Kami</h3>
             <div className="flex gap-3">
               <a
                 href="#"
@@ -95,7 +95,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm text-white/70">
-          <p>&copy; 2024 Luxe Stay. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} RukoSpace. Semua hak cipta dilindungi.</p>
         </div>
       </div>
     </footer>

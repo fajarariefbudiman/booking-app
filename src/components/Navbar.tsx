@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Hotel, Menu, X } from "lucide-react";
 import { useState } from "react";
 
@@ -11,13 +11,13 @@ const Navbar = () => {
 
   const navLinks = [
     { path: "/", label: "Home" },
-    { path: "/rooms", label: "Rooms" },
+    { path: "/ruko", label: "Ruko" },
     { path: "/about", label: "About" },
     { path: "/contact", label: "Contact" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-soft">
+    <nav className="sticky top-0 z-50 bg-white backdrop-blur-sm border-b border-border shadow-soft">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -25,8 +25,13 @@ const Navbar = () => {
             to="/"
             className="flex items-center gap-2 group"
           >
-            <Hotel className="h-8 w-8 text-primary transition-transform group-hover:scale-110" />
-            <span className="text-xl font-bold text-secondary">Luxe Stay</span>
+            <img
+              src="/logo.png"
+              alt="RukoSpace Logo"
+              className="h-14 w-14 object-contain transition-transform group-hover:scale-110"
+            />
+            {/* <Hotel className="h-8 w-8 text-primary transition-transform group-hover:scale-110" /> */}
+            <span className="text-xl font-bold text-secondary">RukoSpace</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -47,7 +52,7 @@ const Navbar = () => {
             <Link to="/login">
               <Button
                 variant="ghost"
-                className="text-secondary hover:text-primary"
+                className="text-secondary hover:text-white"
               >
                 Login
               </Button>

@@ -26,8 +26,7 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Contact form submitted:", formData);
-    // Form submission logic will be implemented later
-    alert("Thank you for your message! We'll get back to you soon.");
+    alert("Terima kasih! Pesan Anda telah kami terima, kami akan segera menghubungi Anda.");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
@@ -38,12 +37,8 @@ const Contact = () => {
       {/* Header */}
       <section className="bg-gradient-hero py-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-4 animate-fade-in">
-            Contact Us
-          </h1>
-          <p className="text-lg text-muted-foreground animate-slide-up">
-            We're here to help and answer any questions you might have
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-4 animate-fade-in">Hubungi Kami</h1>
+          <p className="text-lg text-muted-foreground animate-slide-up">Kami siap membantu Anda dalam urusan sewa dan pemasangan iklan ruko</p>
         </div>
       </section>
 
@@ -52,15 +47,18 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div>
-            <h2 className="text-2xl font-bold text-secondary mb-6">Send us a Message</h2>
+            <h2 className="text-2xl font-bold text-secondary mb-6">Kirim Pesan</h2>
             <Card className="p-6 shadow-soft">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">Nama</Label>
                   <Input
                     id="name"
                     name="name"
-                    placeholder="Your name"
+                    placeholder="Nama lengkap Anda"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -73,7 +71,7 @@ const Contact = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="emailanda@gmail.com"
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -81,11 +79,11 @@ const Contact = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
+                  <Label htmlFor="subject">Subjek</Label>
                   <Input
                     id="subject"
                     name="subject"
-                    placeholder="What is this about?"
+                    placeholder="Tentang apa pesan Anda?"
                     value={formData.subject}
                     onChange={handleChange}
                     required
@@ -93,11 +91,11 @@ const Contact = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="message">Pesan</Label>
                   <Textarea
                     id="message"
                     name="message"
-                    placeholder="Your message..."
+                    placeholder="Tulis pesan Anda di sini..."
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
@@ -105,8 +103,11 @@ const Contact = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
-                  Send Message
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90 text-white"
+                >
+                  Kirim Pesan
                 </Button>
               </form>
             </Card>
@@ -114,7 +115,7 @@ const Contact = () => {
 
           {/* Contact Information */}
           <div>
-            <h2 className="text-2xl font-bold text-secondary mb-6">Contact Information</h2>
+            <h2 className="text-2xl font-bold text-secondary mb-6">Informasi Kontak</h2>
             <div className="space-y-6">
               <Card className="p-6 hover:shadow-hover transition-smooth">
                 <div className="flex items-start gap-4">
@@ -122,11 +123,13 @@ const Contact = () => {
                     <MapPin className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-secondary mb-1">Address</h3>
+                    <h3 className="font-semibold text-secondary mb-1">Alamat Kantor</h3>
                     <p className="text-muted-foreground">
-                      123 Luxury Avenue<br />
-                      Hotel District, HD 12345<br />
-                      United States
+                      Jl. Bisnis Raya No. 45
+                      <br />
+                      Tangerang Selatan, Banten 15412
+                      <br />
+                      Indonesia
                     </p>
                   </div>
                 </div>
@@ -138,10 +141,11 @@ const Contact = () => {
                     <Phone className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-secondary mb-1">Phone</h3>
+                    <h3 className="font-semibold text-secondary mb-1">Telepon</h3>
                     <p className="text-muted-foreground">
-                      Main: +1 (234) 567-8900<br />
-                      Reservations: +1 (234) 567-8901
+                      Admin: +62 812-3456-7890
+                      <br />
+                      CS RukoHub: +62 811-2222-3333
                     </p>
                   </div>
                 </div>
@@ -155,8 +159,9 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold text-secondary mb-1">Email</h3>
                     <p className="text-muted-foreground">
-                      General: info@luxestay.com<br />
-                      Support: support@luxestay.com
+                      Umum: info@rukohub.id
+                      <br />
+                      Bantuan: support@rukohub.id
                     </p>
                   </div>
                 </div>
@@ -168,11 +173,13 @@ const Contact = () => {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-secondary mb-1">Business Hours</h3>
+                    <h3 className="font-semibold text-secondary mb-1">Jam Operasional</h3>
                     <p className="text-muted-foreground">
-                      24/7 Reception & Support<br />
-                      Check-in: 3:00 PM<br />
-                      Check-out: 11:00 AM
+                      Senin - Jumat: 08.00 - 20.00
+                      <br />
+                      Sabtu: 09.00 - 17.00
+                      <br />
+                      Minggu & Hari Libur: Tutup
                     </p>
                   </div>
                 </div>
@@ -180,15 +187,6 @@ const Contact = () => {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Map Section */}
-      <section className="container mx-auto px-4 pb-16">
-        <Card className="overflow-hidden shadow-soft">
-          <div className="aspect-[21/9] bg-muted flex items-center justify-center">
-            <p className="text-muted-foreground">Map placeholder - Integration available on request</p>
-          </div>
-        </Card>
       </section>
 
       <Footer />
