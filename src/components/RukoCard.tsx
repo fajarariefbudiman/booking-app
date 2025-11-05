@@ -2,6 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { MapPin, Maximize2, Star, Tag } from "lucide-react";
+import ruko1 from "../assets/ruko1.jpeg";
+import ruko2 from "../assets/ruko2.jpeg";
+import ruko3 from "../assets/ruko3.jpeg";
+import ruko4 from "../assets/ruko4.jpeg";
+import ruko5 from "../assets/ruko5.jpeg";
+import ruko6 from "../assets/ruko6.jpeg";
 
 interface RukoCardProps {
   id: string;
@@ -16,7 +22,13 @@ interface RukoCardProps {
   available?: boolean;
 }
 
-const RukoCard = ({ id, name, image, price_monthly, price_yearly, size, location, rating, discount = 0, available = true }: RukoCardProps) => {
+const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0, available = true }: any) => {
+  const rukoImages = [ruko1, ruko2, ruko3, ruko4, ruko5, ruko6];
+  const randomImage = rukoImages[Math.floor(Math.random() * rukoImages.length)];
+
+  const price_monthly = price ?? 0;
+  const price_yearly = price_monthly * 12;
+
   const navigate = useNavigate();
 
   // hitung harga setelah diskon (kalau ada)
@@ -26,8 +38,13 @@ const RukoCard = ({ id, name, image, price_monthly, price_yearly, size, location
     <Card className={`group overflow-hidden transition-smooth relative ${!available ? "opacity-70" : "hover:shadow-hover"}`}>
       {/* Gambar */}
       <div className="relative overflow-hidden aspect-[4/3]">
-        <img
+        {/* <img
           src={image}
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        /> */}
+        <img
+          src={randomImage}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -8,13 +8,34 @@ import { Label } from "../components/ui/label";
 import { Hotel } from "lucide-react";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Login logic will be implemented later
-    console.log("Login:", { email, password });
+
+    try {
+      const res = await fetch("https://booking-api-production-8f43.up.railway.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (res.ok) {
+        // simpan token terserah lu mau simpen dimana
+        localStorage.setItem("token", data.access_token);
+        navigate("/");
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Login failed, server error");
+    }
   };
 
   return (
@@ -69,13 +90,19 @@ const Login = () => {
             </CardContent>
 
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full bg-sky-blue hover:bg-sky-blue/90 text-white">
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
+              >
                 Sign In
               </Button>
 
               <p className="text-sm text-center text-muted-foreground">
                 Don't have an account?{" "}
-                <Link to="/register" className="text-sky-blue font-medium hover:underline">
+                <Link
+                  to="/register"
+                  className="text-sky-blue font-medium hover:underline"
+                >
                   Register now
                 </Link>
               </p>

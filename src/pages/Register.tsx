@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -8,28 +8,60 @@ import { Label } from "../components/ui/label";
 import { Hotel } from "lucide-react";
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
+    address: "",
     password: "",
     confirmPassword: "",
+    isOwner: false, // checkbox
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    if (formData.password !== formData.confirmPassword) return alert("Passwords do not match!");
+
+    // role
+    const role = formData.isOwner ? "owner" : "tenant";
+
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      address: formData.address,
+      role: role,
+    };
+
+    const res = await fetch("https://booking-api-production-8f43.up.railway.app/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if (res.ok) {
+      // simpan token terserah lu mau simpen dimana
+      localStorage.setItem("token", data.access_token);
+      navigate("/");
+    } else {
+      alert(data.error);
     }
-    // Registration logic will be implemented later
-    console.log("Register:", formData);
   };
 
   return (
@@ -51,67 +83,94 @@ const Register = () => {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label>Full Name</Label>
                 <Input
-                  id="name"
                   name="name"
-                  type="text"
-                  placeholder="John Doe"
+                  required
                   value={formData.name}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>Email</Label>
                 <Input
-                  id="email"
                   name="email"
                   type="email"
-                  placeholder="you@example.com"
+                  required
                   value={formData.email}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label>Phone</Label>
                 <Input
-                  id="password"
+                  name="phone"
+                  type="text"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Address</Label>
+                <Input
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* ROLE checkbox */}
+              <div className="flex items-center gap-2">
+                <Input
+                  type="checkbox"
+                  name="isOwner"
+                  checked={formData.isOwner}
+                  onChange={handleChange}
+                  className="w-auto"
+                />
+                <Label>Daftar sebagai Owner</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Password</Label>
+                <Input
                   name="password"
                   type="password"
-                  placeholder="••••••••"
+                  required
                   value={formData.password}
                   onChange={handleChange}
-                  required
                 />
-                <p className="text-xs text-muted-foreground">Minimum 8 characters</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label>Confirm Password</Label>
                 <Input
-                  id="confirmPassword"
                   name="confirmPassword"
                   type="password"
-                  placeholder="••••••••"
+                  required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  required
                 />
               </div>
             </CardContent>
 
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
+              >
                 Create Account
               </Button>
-
               <p className="text-sm text-center text-muted-foreground">
                 Already have an account?{" "}
-                <Link to="/login" className="text-primary font-medium hover:underline">
+                <Link
+                  to="/login"
+                  className="text-primary font-medium hover:underline"
+                >
                   Sign in
                 </Link>
               </p>

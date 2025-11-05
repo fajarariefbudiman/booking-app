@@ -7,70 +7,34 @@ import { Search, Calendar, Users, Star, Shield, Clock, Building } from "lucide-r
 import heroImage from "../assets/ruko2.jpeg";
 import rukoSmall from "../assets/ruko3.jpeg";
 import rukoMedium from "../assets/ruko4.jpeg";
+import axios from "axios";
 import rukoLarge from "../assets/ruko5.jpeg";
 import RukoCard from "../components/RukoCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSize, setSelectedSize] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
-  const allRukos = [
-    {
-      id: "1",
-      name: "Ruko Green Valley",
-      image: rukoSmall,
-      price_monthly: 3000000,
-      price_yearly: 30000000,
-      size: "small",
-      location: "Tangerang",
-      rating: 4.6,
-      discount: 10,
-      available: true,
-    },
-    {
-      id: "2",
-      name: "Ruko Sudirman Center",
-      image: rukoMedium,
-      price_monthly: 5000000,
-      price_yearly: 55000000,
-      size: "medium",
-      location: "Jakarta Pusat",
-      rating: 4.8,
-      discount: 0,
-      available: false, // disewa offline
-    },
-    {
-      id: "3",
-      name: "Ruko Grand Boulevard",
-      image: rukoLarge,
-      price_monthly: 8500000,
-      price_yearly: 95000000,
-      size: "large",
-      location: "Bekasi",
-      rating: 4.9,
-      discount: 15,
-      available: true,
-    },
-    {
-      id: "4",
-      name: "Ruko Ciledug Business Park",
-      image: rukoMedium,
-      price_monthly: 4000000,
-      price_yearly: 42000000,
-      size: "medium",
-      location: "Ciledug",
-      rating: 4.5,
-      discount: 0,
-      available: true,
-    },
-  ];
 
+  const [allRukos, setAllRukos] = useState([]);
+
+  useEffect(() => {
+    const fetchRukos = async () => {
+      try {
+        const res = await axios.get("https://booking-api-production-8f43.up.railway.app/api/ruko");
+        setAllRukos(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchRukos();
+  }, []);
   const filteredRukos = allRukos.filter((ruko) => {
     const matchesSearch = ruko.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSize = selectedSize === "all" || ruko.size === selectedSize;
-    const matchesPrice =
-      selectedPrice === "all" || (selectedPrice === "under5" && ruko.price_monthly < 5000000) || (selectedPrice === "5-8" && ruko.price_monthly >= 5000000 && ruko.price_monthly <= 8000000) || (selectedPrice === "above8" && ruko.price_monthly > 8000000);
+    const matchesPrice = selectedPrice === "all" || (selectedPrice === "under5" && ruko.price < 5000000) || (selectedPrice === "5-8" && ruko.price >= 5000000 && ruko.price <= 8000000) || (selectedPrice === "above8" && ruko.price > 8000000);
 
     return matchesSearch && matchesSize && matchesPrice;
   });

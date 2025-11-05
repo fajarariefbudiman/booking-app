@@ -1,9 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Hotel, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Navbar = () => {
+  const role = localStorage.getItem("role");
+  const token = localStorage.getItem("token");
+
+  const getDashboardPath = () => {
+    if (role === "admin") return "/dashboard-admin";
+    if (role === "owner") return "/dashboard-owner";
+    return "/dashboard"; // tenant
+  };
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -48,18 +57,39 @@ const Navbar = () => {
           </div>
 
           {/* Auth Buttons */}
+          {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/login">
-              <Button
-                variant="ghost"
-                className="text-secondary hover:text-white"
-              >
-                Login
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button className="bg-primary hover:bg-primary/90 text-white shadow-soft">Register</Button>
-            </Link>
+            {token ? (
+              <>
+                <Link to={getDashboardPath()}>
+                  <Button className="bg-primary hover:bg-primary/90 text-white">Dashboard</Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("role");
+                    window.location.reload();
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button
+                    variant="ghost"
+                    className="text-secondary hover:text-white"
+                  >
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="bg-primary hover:bg-primary/90 text-white shadow-soft">Register</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
