@@ -28,6 +28,7 @@ const Login = () => {
       if (res.ok) {
         // simpan token terserah lu mau simpen dimana
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/");
       } else {
         alert(data.error);

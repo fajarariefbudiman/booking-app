@@ -12,17 +12,18 @@ import ruko6 from "../assets/ruko6.jpeg";
 interface RukoCardProps {
   id: string;
   name: string;
+  city: string;
   image: string;
   price_monthly: number;
   price_yearly: number;
   size: string;
-  location: string;
+  address: string;
   rating: number;
   discount?: number;
-  available?: boolean;
+  is_available?: boolean;
 }
 
-const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0, available = true }: any) => {
+const RukoCard = ({ id, name, city,image, price, size, address, rating, discount = 0, is_available = true }: any) => {
   const rukoImages = [ruko1, ruko2, ruko3, ruko4, ruko5, ruko6];
   const randomImage = rukoImages[Math.floor(Math.random() * rukoImages.length)];
 
@@ -35,7 +36,7 @@ const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0
   const finalPrice = discount > 0 ? price_monthly - (price_monthly * discount) / 100 : price_monthly;
 
   return (
-    <Card className={`group overflow-hidden transition-smooth relative ${!available ? "opacity-70" : "hover:shadow-hover"}`}>
+    <Card className={`group overflow-hidden transition-smooth relative ${!is_available ? "opacity-70" : "hover:shadow-hover"}`}>
       {/* Gambar */}
       <div className="relative overflow-hidden aspect-[4/3]">
         {/* <img
@@ -59,7 +60,7 @@ const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0
         </div>
 
         {/* Status Ruko */}
-        {!available && (
+        {!is_available && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="text-white font-semibold text-lg">Sudah Disewa Offline</span>
           </div>
@@ -72,13 +73,13 @@ const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0
 
         <div className="flex items-center gap-2 text-muted-foreground mb-3">
           <MapPin className="h-4 w-4" />
-          <span className="text-sm">{location}</span>
+          <span className="text-sm">{address}</span>
         </div>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-1">
             <Maximize2 className="h-4 w-4" />
-            <span>{size === "small" ? "Kecil" : size === "medium" ? "Sedang" : "Besar"}</span>
+            <span>{city}</span>
           </div>
           <div className="flex items-center gap-1">
             <Tag className="h-4 w-4" />
@@ -105,11 +106,11 @@ const RukoCard = ({ id, name, image, price, size, location, rating, discount = 0
             Lihat Detail
           </Button>
           <Button
-            disabled={!available}
+            disabled={!is_available}
             className="flex-1 bg-sky-blue hover:bg-sky-blue/90 text-black"
             onClick={() => navigate(`/booking?ruko=${id}`)}
           >
-            {available ? "Sewa Sekarang" : "Tidak Tersedia"}
+            {is_available == true ? "Sewa Sekarang" : "Tidak Tersedia"}
           </Button>
         </div>
       </CardContent>

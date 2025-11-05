@@ -10,7 +10,7 @@ const Navbar = () => {
   const getDashboardPath = () => {
     if (role === "admin") return "/dashboard-admin";
     if (role === "owner") return "/dashboard-owner";
-    return "/dashboard"; // tenant
+    return "/dashboard";
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +26,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white backdrop-blur-sm border-b border-border shadow-soft">
+    <nav className="sticky top-0 z-50 bg-white backdrop-blur-sm border-b border-border shadow-soft w-full">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -37,13 +37,12 @@ const Navbar = () => {
             <img
               src="/logo.png"
               alt="RukoSpace Logo"
-              className="h-14 w-14 object-contain transition-transform group-hover:scale-110"
+              className="h-12 w-12 object-contain transition-transform group-hover:scale-110"
             />
-            {/* <Hotel className="h-8 w-8 text-primary transition-transform group-hover:scale-110" /> */}
-            <span className="text-xl font-bold text-secondary">RukoSpace</span>
+            <span className="text-lg sm:text-xl font-bold text-secondary">RukoSpace</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -56,8 +55,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          {/* Auth Buttons */}
+          {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-3">
             {token ? (
               <>
@@ -67,8 +65,7 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   onClick={() => {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("role");
+                    localStorage.clear();
                     window.location.reload();
                   }}
                 >
@@ -80,7 +77,7 @@ const Navbar = () => {
                 <Link to="/login">
                   <Button
                     variant="ghost"
-                    className="text-secondary hover:text-white"
+                    className="text-secondary"
                   >
                     Login
                   </Button>
@@ -92,7 +89,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-secondary hover:text-primary transition-colors"
@@ -102,41 +99,63 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 animate-fade-in">
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${isActive(link.path) ? "text-primary" : "text-secondary"}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="flex flex-col gap-2 pt-2 border-t border-border">
-                <Link
-                  to="/login"
-                  onClick={() => setIsMenuOpen(false)}
-                >
+        <div className={`md:hidden transition-all duration-200 overflow-hidden ${isMenuOpen ? "max-h-[350px] opacity-100 py-4" : "max-h-0 opacity-0"}`}>
+          <div className="flex flex-col gap-4 text-sm">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`font-medium transition-colors hover:text-primary ${isActive(link.path) ? "text-primary" : "text-secondary"}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="flex flex-col gap-2 pt-3 border-t border-border">
+              {token ? (
+                <>
+                  <Link
+                    to={getDashboardPath()}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white">Dashboard</Button>
+                  </Link>
                   <Button
                     variant="ghost"
                     className="w-full text-secondary hover:text-primary"
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.reload();
+                    }}
                   >
-                    Login
+                    Logout
                   </Button>
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white">Register</Button>
-                </Link>
-              </div>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full text-secondary hover:text-primary"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white">Register</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );

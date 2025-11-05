@@ -58,6 +58,7 @@ const Register = () => {
     if (res.ok) {
       // simpan token terserah lu mau simpen dimana
       localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/");
     } else {
       alert(data.error);
@@ -124,7 +125,7 @@ const Register = () => {
               </div>
 
               {/* ROLE checkbox */}
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Input
                   type="checkbox"
                   name="isOwner"
@@ -133,7 +134,7 @@ const Register = () => {
                   className="w-auto"
                 />
                 <Label>Daftar sebagai Owner</Label>
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label>Password</Label>
