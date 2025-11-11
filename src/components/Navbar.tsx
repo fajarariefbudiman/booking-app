@@ -4,14 +4,17 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Navbar = () => {
-  const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role") ? String(localStorage.getItem("role")).trim() : null;
+
+  console.log("User Role (Type):", typeof role, "Value:", `'${role}'`);
 
   const getDashboardPath = () => {
     if (role === "admin") return "/dashboard-admin";
     if (role === "owner") return "/dashboard-owner";
     return "/dashboard";
   };
+  console.log("Dashboard Path:", getDashboardPath());
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();

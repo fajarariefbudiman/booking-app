@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import RukoDetail from "./pages/RukoDetail";
 import Dashboard from "./pages/Dashboard";
+import AddRuko from "./pages/AddRuko";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/dashboard-admin" element={<AdminDashboard />} />
+          <Route path="/add-ruko" element={<AddRuko />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard-owner" element={<OwnerDashboard />} />
           <Route path="/payment" element={<Payment />} />

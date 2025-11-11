@@ -1,114 +1,97 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Building, DollarSign, Calendar, Search, MapPin, Star, Clock, FileText, CreditCard, AlertCircle, LayoutDashboard, LogOut, Settings, Menu, X, Bell, Heart, Download, CheckCircle, XCircle, Home } from "lucide-react";
+import { Building, DollarSign, Calendar, Search, MapPin, Star, Clock, FileText, CreditCard, AlertCircle, LayoutDashboard, LogOut, Settings, Menu, X, Bell, Heart, Download, CheckCircle, XCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../hooks/use-toast";
+import axios from "axios";
 
-const Dashboard = () => {
+const TenantDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Mock data - replace with actual API calls
-  const tenantStats = {
-    activeRentals: 2,
-    totalSpent: 85000000,
-    upcomingPayments: 1,
-    savedRukos: 5,
-    daysUntilRenewal: 45,
+  // State untuk data dari API
+  const [myBookings, setMyBookings] = useState([]);
+  const [myPayments, setMyPayments] = useState([]);
+  const [stats, setStats] = useState({
+    activeRentals: 0,
+    totalSpent: 0,
+    upcomingPayments: 0,
+    savedRukos: 0,
+  });
+
+  const API_BASE = "https://booking-api-production-8f43.up.railway.app/api";
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+
+      if (!token || !userStr) {
+        toast({
+          title: "Error",
+          description: "Silakan login terlebih dahulu.",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      const userId = user?.id || user?._id;
+
+      // Fetch bookings untuk tenant ini
+      const bookingsRes = await axios.get(`${API_BASE}/bookings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Filter bookings milik user ini
+      const userBookings = bookingsRes.data.filter((b: any) => b.tenant_id === userId);
+
+      setMyBookings(userBookings);
+
+      // Hitung stats
+      const activeCount = userBookings.filter((b: any) => b.booking_status === "confirmed" && b.payment_status === "paid").length;
+
+      const totalSpent = userBookings.filter((b: any) => b.payment_status === "paid").reduce((sum: number, b: any) => sum + b.total_price, 0);
+
+      const pendingCount = userBookings.filter((b: any) => b.payment_status === "pending").length;
+
+      setStats({
+        activeRentals: activeCount,
+        totalSpent: totalSpent,
+        upcomingPayments: pendingCount,
+        savedRukos: 0, // Implement wishlist later
+      });
+
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error fetching dashboard data:", error);
+
+      if (error.response?.status === 401) {
+        toast({
+          title: "Error",
+          description: "Sesi Anda telah berakhir. Silakan login kembali.",
+          variant: "destructive",
+        });
+        navigate("/login");
+      } else {
+        toast({
+          title: "Error",
+          description: "Gagal memuat data dashboard.",
+          variant: "destructive",
+        });
+      }
+      setLoading(false);
+    }
   };
-
-  const myRentals = [
-    {
-      id: "1",
-      rukoName: "Ruko Green Valley Premium",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400",
-      address: "Jl. Raya Tangerang No. 45",
-      city: "Tangerang",
-      owner: "PT. Properti Jaya",
-      startDate: "2025-01-10",
-      endDate: "2025-12-10",
-      monthlyPrice: 3000000,
-      status: "active",
-      paymentStatus: "paid",
-      rating: 4.6,
-    },
-    {
-      id: "2",
-      rukoName: "Ruko Sudirman Center",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400",
-      address: "Jl. Sudirman Kav. 12",
-      city: "Jakarta Pusat",
-      owner: "CV. Maju Bersama",
-      startDate: "2024-11-05",
-      endDate: "2026-11-05",
-      monthlyPrice: 5000000,
-      status: "active",
-      paymentStatus: "paid",
-      rating: 4.8,
-    },
-  ];
-
-  const paymentHistory = [
-    {
-      id: "1",
-      rukoName: "Ruko Green Valley Premium",
-      amount: 3000000,
-      date: "2025-10-10",
-      status: "paid",
-      method: "Transfer Bank",
-      invoice: "INV-2025-001",
-    },
-    {
-      id: "2",
-      rukoName: "Ruko Sudirman Center",
-      amount: 5000000,
-      date: "2025-10-05",
-      status: "paid",
-      method: "Transfer Bank",
-      invoice: "INV-2025-002",
-    },
-    {
-      id: "3",
-      rukoName: "Ruko Green Valley Premium",
-      amount: 3000000,
-      date: "2025-09-10",
-      status: "paid",
-      method: "Credit Card",
-      invoice: "INV-2025-003",
-    },
-  ];
-
-  const upcomingPayments = [
-    {
-      id: "1",
-      rukoName: "Ruko Green Valley Premium",
-      amount: 3000000,
-      dueDate: "2025-11-10",
-      daysLeft: 5,
-    },
-  ];
-
-  const savedRukos = [
-    {
-      id: "1",
-      name: "Ruko Grand Boulevard",
-      image: "https://images.unsplash.com/photo-1560184897-ae75f418493e?w=400",
-      address: "Jl. Boulevard Raya No. 88",
-      city: "Bekasi",
-      priceMonthly: 8500000,
-      rating: 4.9,
-      discount: 15,
-    },
-    {
-      id: "2",
-      name: "Ruko Business Park",
-      image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400",
-      address: "Jl. Ciledug Raya No. 22",
-      city: "Ciledug",
-      priceMonthly: 4000000,
-      rating: 4.5,
-      discount: 0,
-    },
-  ];
 
   const sidebarMenu = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -117,7 +100,7 @@ const Dashboard = () => {
     { id: "saved", label: "Saved Rukos", icon: Heart },
   ];
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
@@ -125,15 +108,50 @@ const Dashboard = () => {
     }).format(amount);
   };
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      active: "bg-blue-100 text-blue-600",
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const styles: any = {
+      confirmed: "bg-blue-100 text-blue-600",
       paid: "bg-green-100 text-green-600",
       pending: "bg-yellow-100 text-yellow-600",
-      overdue: "bg-red-100 text-red-600",
+      waiting: "bg-orange-100 text-orange-600",
+      cancelled: "bg-red-100 text-red-600",
+      rejected: "bg-red-100 text-red-600",
     };
     return styles[status] || "bg-gray-100 text-gray-600";
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    toast({
+      title: "Logout Berhasil",
+      description: "Anda telah keluar dari akun.",
+    });
+    navigate("/login");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const confirmedBookings = myBookings.filter((b: any) => b.booking_status === "confirmed" && b.payment_status === "paid");
+
+  const pendingBookings = myBookings.filter((b: any) => b.payment_status === "pending");
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -166,7 +184,10 @@ const Dashboard = () => {
               <Settings className="h-5 w-5" />
               <span className="font-medium">Settings</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-blue-700 transition-colors">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-blue-700 transition-colors"
+            >
               <LogOut className="h-5 w-5" />
               <span className="font-medium">Logout</span>
             </button>
@@ -195,9 +216,12 @@ const Dashboard = () => {
               <div className="flex gap-3">
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
                   <Bell className="h-5 w-5 text-gray-600" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  {pendingBookings.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>}
                 </button>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                <Button
+                  onClick={() => navigate("/ruko")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                >
                   <Search className="h-4 w-4" />
                   Find Ruko
                 </Button>
@@ -215,7 +239,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Active Rentals</p>
-                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{tenantStats.activeRentals}</h3>
+                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{stats.activeRentals}</h3>
                     <p className="text-blue-600 text-sm mt-2">Currently renting</p>
                   </div>
                   <div className="bg-blue-100 p-3 rounded-lg">
@@ -228,7 +252,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Total Spent</p>
-                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{formatCurrency(tenantStats.totalSpent).split(",")[0].slice(0, -3)}jt</h3>
+                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{stats.totalSpent > 0 ? formatCurrency(stats.totalSpent).split(",")[0].slice(0, -3) + "jt" : "Rp0"}</h3>
                     <p className="text-gray-600 text-sm mt-2">All time</p>
                   </div>
                   <div className="bg-blue-100 p-3 rounded-lg">
@@ -240,9 +264,9 @@ const Dashboard = () => {
               <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Upcoming Payments</p>
-                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{tenantStats.upcomingPayments}</h3>
-                    <p className="text-orange-600 text-sm mt-2">Due soon</p>
+                    <p className="text-gray-600 text-sm font-medium">Pending Payments</p>
+                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{stats.upcomingPayments}</h3>
+                    <p className="text-orange-600 text-sm mt-2">Need attention</p>
                   </div>
                   <div className="bg-orange-100 p-3 rounded-lg">
                     <Clock className="h-6 w-6 text-orange-600" />
@@ -253,12 +277,12 @@ const Dashboard = () => {
               <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Saved Rukos</p>
-                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{tenantStats.savedRukos}</h3>
-                    <p className="text-gray-600 text-sm mt-2">Favorites</p>
+                    <p className="text-gray-600 text-sm font-medium">Total Bookings</p>
+                    <h3 className="text-3xl font-bold text-gray-800 mt-2">{myBookings.length}</h3>
+                    <p className="text-gray-600 text-sm mt-2">All status</p>
                   </div>
                   <div className="bg-blue-100 p-3 rounded-lg">
-                    <Heart className="h-6 w-6 text-blue-600" />
+                    <Calendar className="h-6 w-6 text-blue-600" />
                   </div>
                 </div>
               </Card>
@@ -267,221 +291,199 @@ const Dashboard = () => {
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <div className="space-y-6">
-                {/* Quick Actions */}
+                {/* Welcome Banner */}
                 <Card className="p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="text-lg font-semibold mb-2">Welcome back!</h3>
                       <p className="text-blue-100">
-                        You have {tenantStats.upcomingPayments} upcoming payment. Next renewal in {tenantStats.daysUntilRenewal} days.
+                        You have {stats.activeRentals} active rental{stats.activeRentals !== 1 ? "s" : ""} and {stats.upcomingPayments} pending payment{stats.upcomingPayments !== 1 ? "s" : ""}.
                       </p>
                     </div>
-                    <Button className="bg-white text-blue-600 hover:bg-blue-50">View Details</Button>
+                    <Button
+                      onClick={() => setActiveTab("my-rentals")}
+                      className="bg-white text-blue-600 hover:bg-blue-50"
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </Card>
 
-                {/* Upcoming Payments Alert */}
-                {upcomingPayments.length > 0 && (
+                {/* Pending Payments Alert */}
+                {pendingBookings.length > 0 && (
                   <Card className="p-6 bg-white border-l-4 border-orange-500">
                     <div className="flex items-start gap-4">
                       <div className="bg-orange-100 p-3 rounded-lg">
                         <AlertCircle className="h-6 w-6 text-orange-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Upcoming Payment</h3>
-                        {upcomingPayments.map((payment) => (
-                          <div
-                            key={payment.id}
-                            className="flex justify-between items-center"
-                          >
-                            <div>
-                              <p className="text-gray-800 font-medium">{payment.rukoName}</p>
-                              <p className="text-sm text-gray-600">
-                                Due: {payment.dueDate} ({payment.daysLeft} days left)
-                              </p>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">Pending Payments</h3>
+                        <div className="space-y-3">
+                          {pendingBookings.map((booking: any) => (
+                            <div
+                              key={booking.id}
+                              className="flex justify-between items-center p-3 bg-orange-50 rounded-lg"
+                            >
+                              <div>
+                                <p className="text-gray-800 font-medium">Booking #{booking.id.slice(-8)}</p>
+                                <p className="text-sm text-gray-600">
+                                  {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-gray-800">{formatCurrency(booking.total_price)}</p>
+                                <Button
+                                  size="sm"
+                                  onClick={() => navigate(`/payment?booking=${booking.id}`)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white mt-2"
+                                >
+                                  Pay Now
+                                </Button>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-semibold text-gray-800">{formatCurrency(payment.amount)}</p>
-                              <Button
-                                size="sm"
-                                className="bg-blue-600 hover:bg-blue-700 text-white mt-2"
-                              >
-                                Pay Now
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </Card>
                 )}
 
-                {/* My Rentals Overview */}
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">My Current Rentals</h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                    >
-                      View All
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {myRentals.map((rental) => (
-                      <Card
-                        key={rental.id}
-                        className="overflow-hidden hover:shadow-lg transition-shadow bg-white"
+                {/* Active Rentals */}
+                {confirmedBookings.length > 0 && (
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">My Active Rentals</h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab("my-rentals")}
+                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
                       >
-                        <div className="flex">
-                          <img
-                            src={rental.image}
-                            alt={rental.rukoName}
-                            className="w-32 h-32 object-cover"
-                          />
-                          <div className="flex-1 p-4">
-                            <div className="flex justify-between items-start mb-2">
-                              <h4 className="font-semibold text-gray-800">{rental.rukoName}</h4>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(rental.status)}`}>{rental.status}</span>
+                        View All
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {confirmedBookings.slice(0, 2).map((booking: any) => (
+                        <Card
+                          key={booking.id}
+                          className="p-4 hover:shadow-lg transition-shadow bg-white"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold text-gray-800">Booking #{booking.id.slice(-8)}</h4>
+                              <p className="text-sm text-gray-600 mt-1">Ruko ID: {booking.ruko_id}</p>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 mb-2">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              {rental.city}
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(booking.booking_status)}`}>{booking.booking_status}</span>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center text-gray-600">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 mb-2">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              {rental.startDate} - {rental.endDate}
-                            </div>
-                            <div className="flex justify-between items-center mt-3">
-                              <span className="font-semibold text-blue-600">{formatCurrency(rental.monthlyPrice)}/mo</span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                              >
-                                Details
-                              </Button>
+                            <div className="flex justify-between items-center pt-2 border-t">
+                              <span className="text-gray-600">Total Price:</span>
+                              <span className="font-semibold text-blue-600">{formatCurrency(booking.total_price)}</span>
                             </div>
                           </div>
-                        </div>
-                      </Card>
-                    ))}
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Recent Payments */}
-                <Card className="p-6 bg-white">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Recent Payments</h3>
+                {/* Empty State */}
+                {myBookings.length === 0 && (
+                  <Card className="p-12 text-center bg-white">
+                    <Building className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">No Bookings Yet</h3>
+                    <p className="text-gray-600 mb-6">Start exploring and book your first ruko!</p>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                      onClick={() => navigate("/ruko")}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
-                      View All
+                      <Search className="h-4 w-4 mr-2" />
+                      Browse Rukos
                     </Button>
-                  </div>
-                  <div className="space-y-3">
-                    {paymentHistory.slice(0, 3).map((payment) => (
-                      <div
-                        key={payment.id}
-                        className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="bg-green-100 p-2 rounded-lg">
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-800">{payment.rukoName}</p>
-                            <p className="text-sm text-gray-600">
-                              {payment.date} • {payment.method}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-800">{formatCurrency(payment.amount)}</p>
-                          <span className={`text-xs px-2 py-1 rounded ${getStatusBadge(payment.status)}`}>{payment.status}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                  </Card>
+                )}
               </div>
             )}
 
             {/* My Rentals Tab */}
             {activeTab === "my-rentals" && (
               <div className="space-y-6">
-                {myRentals.map((rental) => (
-                  <Card
-                    key={rental.id}
-                    className="overflow-hidden bg-white"
-                  >
-                    <div className="flex flex-col md:flex-row">
-                      <img
-                        src={rental.image}
-                        alt={rental.rukoName}
-                        className="w-full md:w-64 h-64 object-cover"
-                      />
-                      <div className="flex-1 p-6">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800">All My Bookings</h3>
+                  <p className="text-gray-600 text-sm">View all your rental bookings</p>
+                </div>
+
+                {myBookings.length === 0 ? (
+                  <Card className="p-12 text-center bg-white">
+                    <Building className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">No Bookings Found</h3>
+                    <p className="text-gray-600 mb-6">You haven't made any bookings yet.</p>
+                    <Button
+                      onClick={() => navigate("/ruko")}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Browse Rukos
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6">
+                    {myBookings.map((booking: any) => (
+                      <Card
+                        key={booking.id}
+                        className="p-6 bg-white hover:shadow-lg transition-shadow"
+                      >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">{rental.rukoName}</h3>
-                            <div className="flex items-center text-gray-600 mb-2">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              {rental.address}, {rental.city}
-                            </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                              {rental.rating}
-                            </div>
+                            <h4 className="text-xl font-bold text-gray-800">Booking #{booking.id.slice(-8)}</h4>
+                            <p className="text-sm text-gray-600 mt-1">Ruko ID: {booking.ruko_id}</p>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(rental.status)}`}>{rental.status}</span>
+                          <div className="flex gap-2">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(booking.booking_status)}`}>{booking.booking_status}</span>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(booking.payment_status)}`}>{booking.payment_status}</span>
+                          </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="bg-blue-50 p-3 rounded-lg">
-                            <p className="text-sm text-gray-600 mb-1">Owner</p>
-                            <p className="font-medium text-gray-800">{rental.owner}</p>
-                          </div>
-                          <div className="bg-blue-50 p-3 rounded-lg">
-                            <p className="text-sm text-gray-600 mb-1">Monthly Price</p>
-                            <p className="font-medium text-gray-800">{formatCurrency(rental.monthlyPrice)}</p>
-                          </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                           <div className="bg-blue-50 p-3 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">Start Date</p>
-                            <p className="font-medium text-gray-800">{rental.startDate}</p>
+                            <p className="font-medium text-gray-800">{formatDate(booking.start_date)}</p>
                           </div>
                           <div className="bg-blue-50 p-3 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">End Date</p>
-                            <p className="font-medium text-gray-800">{rental.endDate}</p>
+                            <p className="font-medium text-gray-800">{formatDate(booking.end_date)}</p>
+                          </div>
+                          <div className="bg-blue-50 p-3 rounded-lg">
+                            <p className="text-sm text-gray-600 mb-1">Total Price</p>
+                            <p className="font-medium text-gray-800">{formatCurrency(booking.total_price)}</p>
                           </div>
                         </div>
 
                         <div className="flex gap-3">
-                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Make Payment
-                          </Button>
+                          {booking.payment_status === "pending" && (
+                            <Button
+                              onClick={() => navigate(`/payment?booking=${booking.id}`)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              <CreditCard className="h-4 w-4 mr-2" />
+                              Make Payment
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             className="border-blue-600 text-blue-600 hover:bg-blue-50"
                           >
                             <FileText className="h-4 w-4 mr-2" />
-                            View Contract
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-                          >
-                            Contact Owner
+                            View Details
                           </Button>
                         </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -493,94 +495,50 @@ const Dashboard = () => {
                   <table className="w-full">
                     <thead className="bg-blue-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Invoice</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Ruko</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Date</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Booking ID</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Period</th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Amount</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Method</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Payment</th>
                         <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Status</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-blue-600">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {paymentHistory.map((payment) => (
+                      {myBookings.map((booking: any) => (
                         <tr
-                          key={payment.id}
+                          key={booking.id}
                           className="hover:bg-gray-50"
                         >
-                          <td className="px-4 py-4 text-sm font-medium text-gray-800">{payment.invoice}</td>
-                          <td className="px-4 py-4 text-sm text-gray-800">{payment.rukoName}</td>
-                          <td className="px-4 py-4 text-sm text-gray-600">{payment.date}</td>
-                          <td className="px-4 py-4 text-sm font-medium text-gray-800">{formatCurrency(payment.amount)}</td>
-                          <td className="px-4 py-4 text-sm text-gray-600">{payment.method}</td>
-                          <td className="px-4 py-4 text-sm">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(payment.status)}`}>{payment.status}</span>
+                          <td className="px-4 py-4 text-sm font-medium text-gray-800">#{booking.id.slice(-8)}</td>
+                          <td className="px-4 py-4 text-sm text-gray-600">
+                            {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
                           </td>
+                          <td className="px-4 py-4 text-sm font-medium text-gray-800">{formatCurrency(booking.total_price)}</td>
+                          <td className="px-4 py-4 text-sm text-gray-600 capitalize">{booking.payment_method}</td>
                           <td className="px-4 py-4 text-sm">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-3 hover:bg-blue-50 text-blue-600"
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              Invoice
-                            </Button>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(booking.payment_status)}`}>{booking.payment_status}</span>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  {myBookings.length === 0 && <div className="text-center py-8 text-gray-500">No payment history found</div>}
                 </div>
               </Card>
             )}
 
             {/* Saved Rukos Tab */}
             {activeTab === "saved" && (
-              <div>
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800">Saved Rukos</h3>
-                  <p className="text-gray-600 text-sm">Your favorite rukos for future reference</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {savedRukos.map((ruko) => (
-                    <Card
-                      key={ruko.id}
-                      className="overflow-hidden hover:shadow-lg transition-shadow bg-white"
-                    >
-                      <div className="relative h-48">
-                        <img
-                          src={ruko.image}
-                          alt={ruko.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {ruko.discount > 0 && (
-                          <div className="absolute top-3 left-3">
-                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-500 text-white">{ruko.discount}% OFF</span>
-                          </div>
-                        )}
-                        <button className="absolute top-3 right-3 bg-white p-2 rounded-full hover:bg-gray-100 transition-colors">
-                          <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-                        </button>
-                      </div>
-                      <div className="p-4">
-                        <h4 className="font-semibold text-gray-800 mb-2">{ruko.name}</h4>
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {ruko.city}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600 mb-3">
-                          <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                          {ruko.rating}
-                        </div>
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-blue-600">{formatCurrency(ruko.priceMonthly)}/mo</span>
-                        </div>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">View Details</Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+              <Card className="p-12 text-center bg-white">
+                <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Saved Rukos</h3>
+                <p className="text-gray-600 mb-6">Save your favorite rukos for quick access.</p>
+                <Button
+                  onClick={() => navigate("/ruko")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Browse Rukos
+                </Button>
+              </Card>
             )}
           </div>
         </main>
@@ -589,4 +547,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default TenantDashboard;

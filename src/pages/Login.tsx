@@ -29,6 +29,7 @@ const Login = () => {
         // simpan token terserah lu mau simpen dimana
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("role", data.user.role);
         navigate("/");
       } else {
         alert(data.error);
